@@ -5,77 +5,81 @@
 
 import psycopg2
 
-def connect():
-    try:
-        connection = psycopg2.connect("dbname=tournament")
-        cursor = connection.cursor()
-        return connection, cursor
-    except:
-        print("Could not connect to database")
+class Query():
+    """Define class for efficiency in database connection"""
+    def __init__(self):
+        self.connection = psycopg2.connect("dbname=tournament")
+        self.cursor = self.connection.cursor()
+    
+    def execute(self, sql_string, commit = True):
+        self.cursor.execute(sql_string)
+        
+        if commit == False:
+            return self
+        else:
+            self.connection.commit()
+            self.close()
 
-def close(connection, cursor):
-    connection.close()
-    cursor.close()
-
+    def security(self):
+        return self
+    
+    def close(self):
+        self.cursor.close()
+        self.connection.close()
+        
 def deleteMatches():
-    connection, cursor = connect()
-    cursor.execute("DELETE FROM matches")
-    connection.commit()
-    close(connection, cursor)
+    """Clears matches from database"""
+    Query().execute("DELETE FROM matches")
 
 def deletePlayers():
-    connection, cursor = connect()
-    cursor.execute("DELETE FROM players")
-    connection.commit()
-    close(connection, cursor)
+    """Clear players from database"""
+    Query().execute("DELETE FROM players")
 
 def countPlayers():
-    connection, cursor = connect()
-    cursor.execute("SELECT COUNT(*) FROM players")
-    result = cursor.fetchone()
-    close(connection, cursor)
-    # extract and return the result
+    """Find total number of players"""
+    object = Query().execute("SELECT COUNT(*) FROM players", False)
+    result = object.cursor.fetchone()
+    object.close()
     return result[0]
 
 def registerPlayer(name):
-    connection, cursor = connect()
-    # we use a tuple here to prevent SQL injection attack
-    cursor.execute("INSERT INTO players(name) VALUES(%s)", (name,))
-    connection.commit()
-    close(connection, cursor)
+    """Add new record to players, protecting against SQL injection attacks"""
+    object = Query().security()
+    object.cursor.execute("INSERT INTO players(name) VALUES(%s)", (name,))
+    object.connection.commit()
+    object.close()
 
 def playerStandings():
-    connection, cursor = connect()
-    # here we are querying the view we created
-    cursor.execute("SELECT * FROM standings")
-    results = cursor.fetchall()
-    close(connection, cursor)
+    """Query view to return list of players sorted by wins"""
+    object = Query().execute("SELECT * FROM standings", False)
+    results = object.cursor.fetchall()
+    object.close()
     return results
 
 def reportMatch(winner, loser):
-    connection, cursor = connect()
-    # record the match result
-    cursor.execute("INSERT INTO matches(winner_id, loser_id) VALUES(%s, %s)", (winner, loser,))
-    connection.commit()
-    close(connection, cursor)
+    """Add new record to matches, protecting against SQL injection attacks"""
+    object = Query().security()
+    object.cursor.execute("INSERT INTO matches(winner_id, loser_id) VALUES(%s, %s)", (winner, loser,))
+    object.connection.commit()
+    object.close()
  
  
 def swissPairings():
-    connection, cursor = connect()
-    cursor.execute("SELECT id, name FROM standings")
-    results = cursor.fetchall()
+    """Returns a list of pairs of payers, matched according to wins"""
+    object = Query().execute("SELECT id, name FROM standings", False)
+    results = object.cursor.fetchall()
     
     # find out how many players there are, which gives us pairs we need to make
     pairs = len(results)/2
     
-    # declare a new list to return, a tuple to hold player pairs we will append to list
+    # declare a new list to return, and tuple to hold player pairs
     list = []
     tuple = ()
     
-    # iterate through the results (already sorted by wins), storing pairs in tuples and appending to the list
+    # iterate through the players (already sorted by wins), storing pairs in tuples and appending to the list
     for i in range(pairs):
         tuple = results.pop() + results.pop()
         list.append(tuple)
     
-    close(connection, cursor)
+    object.close()
     return list
