@@ -56,7 +56,6 @@ def swissPairings():
     list_pairs = []
     
     for i in range(pairs):
-        player_pair = results.pop() + results.pop()
-        list_pairs.append(player_pair)
+        list_pairs.append(results.pop() + results.pop())
     
     return list_pairs
