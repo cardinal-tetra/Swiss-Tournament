@@ -1,11 +1,11 @@
-##README
+## README
 
-###Overview
+### Overview
 
 This application runs a Swiss-system tournament where losing players are not eliminated but paired with other players, who have a similar number of wins, in the subsequent rounds. The first stage of the project involved defining a relational database schema containing normalised data relating to players, their standings, and matches in multiple tables. The second stage involved writing SQL queries and Python functions to modify and extract this data, ensuring tournament progression and accurate reporting of information.
 
 
-###How to Run
+### How to Run
 
 This application is dependent upon Postgresql and is made of three files: `tournament.sql` (contains database schema), `tournament.py` (updates and queries the database), and `tournament_test.py` (engages in unit testing).
 
