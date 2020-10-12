@@ -1,5 +1,3 @@
-## README
-
 ### Overview
 
 This application runs a Swiss-system tournament where losing players are not eliminated but paired with other players, who have a similar number of wins, in the subsequent rounds. The first stage of the project involved defining a relational database schema containing normalised data relating to players, their standings, and matches in multiple tables. The second stage involved writing SQL queries and Python functions to modify and extract this data, ensuring tournament progression and accurate reporting of information.
